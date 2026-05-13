@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+
 
 public class Product
 {
@@ -12,9 +14,11 @@ class Program
 {
     static void Main()
     {
+        Console.WriteLine();
         Console.WriteLine("==== PRODUCT LIST APPLICATION ===="); // Display the application title
-
+        Console.WriteLine(); 
         Console.WriteLine("Enter the number of products:"); // Prompt the user to enter the number of products
+        Console.WriteLine(); 
 
         List<Product> products = new List<Product>(); // Create a list to store products
 
@@ -22,6 +26,8 @@ class Program
         
         for (int i = 0; i < count; i++)
         {
+            {
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"Enter details for product {i + 1}:"); // Prompt the user to enter details for each product
            
             Console.Write("Enter Category: ");
@@ -39,15 +45,26 @@ class Program
                          Name = name, 
                          Price = price 
             });
-
+            Console.WriteLine(); 
             Console.WriteLine("Product added successfully! "); // Display the product list header
-        }
+            Console.WriteLine(); 
 
+        }
+        Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine("==== PRODUCT LIST  ===="); // Display the product list header
+        Console.WriteLine(); 
+        Console.ResetColor();
 
             foreach (var p in products)
             {
-                Console.WriteLine($"- {p.Category} | {p.Name} | {p.Price:NO} kr"); // Display each product's details in a formatted manner
+                Console.WriteLine($"- {p.Category, -12} | {p.Name,-25} | {p.Price.ToString("C", CultureInfo.CurrentCulture), 12}"); // Display each product's details for globalization.
             }     
+
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("All products have been added successfully. Thank you!");
+            Console.ResetColor();
+            Console.WriteLine(); 
+        }
     }
 }
