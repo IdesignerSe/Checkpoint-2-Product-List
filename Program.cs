@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-
+using System.Linq;
 
 public class Product
 {
@@ -10,61 +10,98 @@ public class Product
     public decimal Price { get; set; }
 }
 
+public class ProductManager
+{
+    private List<Product> products = new List<Product>();
+
+    public void AddProduct()
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("Enter product details:");
+
+        Console.Write("Enter Category: ");
+        string category = (Console.ReadLine() ?? "").Trim();
+
+        Console.Write("Enter Product Name: ");
+        string name = (Console.ReadLine() ?? "").Trim();
+
+        Console.Write("Enter Price: ");
+        decimal price = decimal.Parse(Console.ReadLine() ?? "0");
+
+        products.Add(new Product
+        {
+            Category = category,
+            Name = name,
+            Price = price
+        });
+
+        Console.ResetColor();
+        Console.WriteLine();
+        Console.WriteLine("Product added successfully!");
+        Console.WriteLine();
+    }
+
+    public void ShowProducts()
+    {
+        // Sort by price (lowest → highest)
+        var sorted = products
+            .OrderBy(p => p.Price)
+            .ThenBy(p => p.Category)
+            .ThenBy(p => p.Name)
+            .ToList();
+
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("==== PRODUCT LIST ====");
+        Console.ResetColor();
+        Console.WriteLine();
+
+        foreach (var p in sorted)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(
+                $"- {p.Category,-12} | {p.Name,-25} | {p.Price.ToString("C", CultureInfo.CurrentCulture),12}"
+            );
+            Console.ResetColor();
+        }
+
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"Total Price: {CalculateTotal().ToString("C", CultureInfo.CurrentCulture)}");
+        Console.ResetColor();
+        Console.WriteLine();
+    }
+
+    public decimal CalculateTotal()
+    {
+        return products.Sum(p => p.Price);
+    }
+}
+
 class Program
 {
     static void Main()
     {
         Console.WriteLine();
-        Console.WriteLine("==== PRODUCT LIST APPLICATION ===="); // Display the application title
-        Console.WriteLine(); 
-        Console.WriteLine("Enter the number of products:"); // Prompt the user to enter the number of products
-        Console.WriteLine(); 
+        Console.WriteLine("==== PRODUCT LIST APPLICATION ====");
+        Console.WriteLine();
 
-        List<Product> products = new List<Product>(); // Create a list to store products
+        ProductManager manager = new ProductManager();
 
-        int count = int.Parse(Console.ReadLine() ?? "0"); // Read the number of products from user input and convert it to an integer
-        
+        Console.Write("Enter the number of products: ");
+        int count = int.Parse(Console.ReadLine() ?? "0");
+        Console.WriteLine();
+
         for (int i = 0; i < count; i++)
         {
-            {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Enter details for product {i + 1}:"); // Prompt the user to enter details for each product
-           
-            Console.Write("Enter Category: ");
-            string category = Console.ReadLine() ?? ""; // Read the category of the product from user input
-           
-            Console.Write("Enter Product Name: ");
-            string name = Console.ReadLine() ?? "";
-           
-            Console.Write("Enter Price: ");
-            decimal price = decimal.Parse(Console.ReadLine() ?? "0");
-
-           
-            products.Add(new Product 
-            { Category = category,
-                         Name = name, 
-                         Price = price 
-            });
-            Console.WriteLine(); 
-            Console.WriteLine("Product added successfully! "); // Display the product list header
-            Console.WriteLine(); 
-
+            Console.WriteLine($"Product {i + 1}:");
+            manager.AddProduct();
         }
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine("==== PRODUCT LIST  ===="); // Display the product list header
-        Console.WriteLine(); 
+
+        manager.ShowProducts();
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("All products have been added successfully. Thank you!");
         Console.ResetColor();
-
-            foreach (var p in products)
-            {
-                Console.WriteLine($"- {p.Category, -12} | {p.Name,-25} | {p.Price.ToString("C", CultureInfo.CurrentCulture), 12}"); // Display each product's details for globalization.
-            }     
-
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("All products have been added successfully. Thank you!");
-            Console.ResetColor();
-            Console.WriteLine(); 
-        }
+        Console.WriteLine();
     }
 }
