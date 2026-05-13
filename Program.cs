@@ -100,7 +100,7 @@ class Program
         manager.ShowProducts();
 
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("All products have been added successfully. Thank you!");
+        Console.WriteLine("All products have been added and calculated successfully. Thank you!");
         Console.ResetColor();
         Console.WriteLine();
     }
