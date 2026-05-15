@@ -65,7 +65,7 @@ public class ProductManager
             }
 
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Invalid price. Please enter a positive number.");
+            Console.WriteLine("Invalid price. Please enter a  numberic value.");
             Console.ResetColor();
         }
         products.Add(new Product
@@ -82,6 +82,39 @@ public class ProductManager
         Console.WriteLine();
     }
 
+public void SearchProduct()
+    {
+        Console.Write("Enter search term (name or category): ");
+        string term = (Console.ReadLine() ?? "").Trim().ToLower();
+
+        var results = products
+            .Where(p => p.Name.ToLower().Contains(term) ||
+                        p.Category.ToLower().Contains(term))
+            .ToList();
+
+        if (!results.Any())
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("No matching products found.");
+            Console.ResetColor();
+            return;
+        }
+
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("\n==== SEARCH RESULTS ====");
+        Console.ResetColor();
+
+        foreach (var p in results)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow; // highlight
+            Console.WriteLine(
+                $"- {p.Category,-12} | {p.Name,-25} | {p.Price.ToString("C", CultureInfo.CurrentCulture),12}"
+            );
+            Console.ResetColor();
+        }
+
+        Console.WriteLine();
+    }
     public void ShowProducts()
     {
         // Sort by price (lowest → highest)
@@ -129,24 +162,46 @@ class Program
         ProductManager manager = new ProductManager();
 
         bool running = true;
-
         while (running)
         {
-            manager.AddProduct();
+            Console.WriteLine("Choose an option:");
+            Console.WriteLine("1. Add Product");
+            Console.WriteLine("2. Show Products");
+            Console.WriteLine("3. Search Product");
+            Console.WriteLine("4. Exit");
+            Console.Write("Your choice: ");
 
-            Console.Write("Do you want to add another product? (y/n): ");
-            string answer = (Console.ReadLine() ?? "").Trim().ToLower();
+            string choice = (Console.ReadLine() ?? "").Trim();
 
-            if (answer == "n")
+            Console.WriteLine();
+
+            switch (choice)
             {
-                Console.WriteLine();
-                manager.ShowProducts();
-                running = false;
+                case "1":
+                    manager.AddProduct();
+                    break;
+
+                case "2":
+                    manager.ShowProducts();
+                    break;
+
+                case "3":
+                    manager.SearchProduct();
+                    break;
+
+                case "4":
+                    running = false;
+                    break;
+
+                default:
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("Invalid choice. Please try again. Please enter a number between 1 and 4.");
+                    Console.ResetColor();
+                    break;
             }
         }
-
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("All products have been added and calculated successfully. Thank you!");
+        Console.WriteLine("Goodbye! Thank you for using the Product List Application.");
         Console.ResetColor();
         Console.WriteLine();
     }
