@@ -268,6 +268,45 @@ public class ProductManager
     Console.WriteLine();
 }
 
+    // =====================
+    // SORTING METHODS
+    // =====================
+
+    private void SortByPriceAscending()
+    {
+        products = products.OrderBy(p => p.Price).ToList();
+    }
+
+    private void SortByPriceDescending()
+    {
+        products = products.OrderByDescending(p => p.Price).ToList();
+    }
+
+    private void SortByNameAscending()
+    {
+        products = products.OrderBy(p => p.Name).ToList();
+    }
+
+    private void SortByNameDescending()
+    {
+        products = products.OrderByDescending(p => p.Name).ToList();
+    }
+
+    private void SortByCategory()
+    {
+        products = products.OrderBy(p => p.Category).ToList();
+    }
+
+    private void SortByIdAscending()
+    {
+        products = products.OrderBy(p => p.Id).ToList();
+    }
+
+    private void SortByIdDescending()
+    {
+        products = products.OrderByDescending(p => p.Id).ToList();
+    }
+
     public void ShowStatistics()
 {
     if (!products.Any())
@@ -389,6 +428,67 @@ public class ProductManager
     }
 }
 
+    public void SortMenu()
+{
+
+    
+    Console.WriteLine("\n=== SORT PRODUCTS ===");
+    Console.WriteLine("1. Price (Low → High)");
+    Console.WriteLine("2. Price (High → Low)");
+    Console.WriteLine("3. Name (A → Z)");
+    Console.WriteLine("4. Name (Z → A)");
+    Console.WriteLine("5. Category (A → Z)");
+    Console.WriteLine("6. ID (Ascending)");
+    Console.WriteLine("7. ID (Descending)");
+    Console.Write("Choose an option: ");
+
+    
+
+    string choice = (Console.ReadLine() ?? "").Trim();
+
+    switch (choice)
+    {
+        case "1":
+            SortByPriceAscending();
+            break;
+
+        case "2":
+            SortByPriceDescending();
+            break;
+
+        case "3":
+            SortByNameAscending();
+            break;
+
+        case "4":
+            SortByNameDescending();
+            break;
+
+        case "5":
+            SortByCategory();
+            break;
+
+        case "6":
+            SortByIdAscending();
+            break;
+
+        case "7":
+            SortByIdDescending();
+            break;
+
+        default:
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Invalid choice.");
+            Console.ResetColor();
+            return;
+        
+    }
+    
+
+    Console.WriteLine();
+    ShowProducts(); // show sorted list immediately
+}
+
     public decimal CalculateTotal()
     {
         return products.Sum(p => p.Price);
@@ -418,6 +518,7 @@ class Program
             Console.WriteLine("7. Save Products");
             Console.WriteLine("8. Load Products");
             Console.WriteLine("9. Exit");
+            Console.WriteLine("10. Sort Products");
             Console.Write("Your choice: ");
 
             string choice = (Console.ReadLine() ?? "").Trim();
@@ -460,6 +561,10 @@ class Program
 
                 case "9":
                     running = false;
+                    break;
+
+                case "10":
+                    manager.SortMenu(); 
                     break;
 
                 default:
