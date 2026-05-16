@@ -2,9 +2,16 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.IO;
+
 
 public class Product
 {
+    private static int nextId = 1;   // auto‑increment counter
+    public int Id { get; set; } = nextId++;   // unique ID
+
     public string Category { get; set; } = "";
     public string Name { get; set; } = "";
     public decimal Price { get; set; }
@@ -82,7 +89,7 @@ public class ProductManager
         Console.WriteLine();
     }
 
-public void SearchProduct()
+    public void SearchProduct()
     {
         Console.Write("Enter search term (name or category): ");
         string term = (Console.ReadLine() ?? "").Trim().ToLower();
@@ -145,6 +152,245 @@ public void SearchProduct()
         Console.WriteLine();
     }
 
+    public void EditProduct()
+{
+    Console.Write("Enter the Product ID to edit: ");
+    string input = (Console.ReadLine() ?? "").Trim();
+
+    if (!int.TryParse(input, out int id))
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("Invalid ID format.");
+        Console.ResetColor();
+        return;
+    }
+
+    // Find product using LINQ
+    var product = products.FirstOrDefault(p => p.Id == id);
+
+    if (product == null)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("No product found with that ID.");
+        Console.ResetColor();
+        return;
+    }
+
+    Console.ForegroundColor = ConsoleColor.Cyan;
+    Console.WriteLine("\nEditing Product:");
+    Console.ResetColor();
+
+    Console.WriteLine(
+        $"- {product.Category,-12} | {product.Name,-25} | {product.Price.ToString("C", CultureInfo.CurrentCulture),12}"
+    );
+    Console.WriteLine();
+
+    // EDIT CATEGORY
+    Console.Write("Enter new Category (leave empty to keep current): ");
+    string newCategory = (Console.ReadLine() ?? "").Trim();
+    if (!string.IsNullOrWhiteSpace(newCategory))
+        product.Category = newCategory;
+
+    // EDIT NAME
+    Console.Write("Enter new Product Name (leave empty to keep current): ");
+    string newName = (Console.ReadLine() ?? "").Trim();
+    if (!string.IsNullOrWhiteSpace(newName))
+        product.Name = newName;
+
+    // EDIT PRICE
+    Console.Write("Enter new Price (leave empty to keep current): ");
+    string newPriceInput = (Console.ReadLine() ?? "").Trim();
+
+    if (!string.IsNullOrWhiteSpace(newPriceInput))
+    {
+        if (decimal.TryParse(newPriceInput, out decimal newPrice) && newPrice > 0)
+        {
+            product.Price = newPrice;
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Invalid price. Keeping old price.");
+            Console.ResetColor();
+        }
+    }
+
+    Console.ForegroundColor = ConsoleColor.Green;
+    Console.WriteLine("Product updated successfully!");
+    Console.ResetColor();
+    Console.WriteLine();
+}
+
+    public void DeleteProduct()
+{
+    Console.Write("Enter the Product ID to delete: ");
+    string input = (Console.ReadLine() ?? "").Trim();
+
+    if (!int.TryParse(input, out int id))
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("Invalid ID format.");
+        Console.ResetColor();
+        return;
+    }
+
+    // Find product using LINQ
+    var product = products.FirstOrDefault(p => p.Id == id);
+
+    if (product == null)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("No product found with that ID.");
+        Console.ResetColor();
+        return;
+    }
+
+    // Confirm deletion
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine($"Are you sure you want to delete '{product.Name}'? (y/n)");
+    Console.ResetColor();
+
+    string confirm = (Console.ReadLine() ?? "").Trim().ToLower();
+
+    if (confirm == "y")
+    {
+        products.Remove(product);
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Product deleted successfully!");
+        Console.ResetColor();
+    }
+    else
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("Deletion cancelled.");
+        Console.ResetColor();
+    }
+
+    Console.WriteLine();
+}
+
+    public void ShowStatistics()
+{
+    if (!products.Any())
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("No products available to calculate statistics.");
+        Console.ResetColor();
+        return;
+    }
+
+    Console.ForegroundColor = ConsoleColor.Cyan;
+    Console.WriteLine("==== STATISTICS DASHBOARD ====");
+    Console.ResetColor();
+    Console.WriteLine();
+
+    // Most expensive product
+    var mostExpensive = products
+        .OrderByDescending(p => p.Price)
+        .First();
+
+    // Cheapest product
+    var cheapest = products
+        .OrderBy(p => p.Price)
+        .First();
+
+    // Average price
+    decimal averagePrice = products.Average(p => p.Price);
+
+    // Count per category
+    var categoryCounts = products
+        .GroupBy(p => p.Category)
+        .Select(g => new { Category = g.Key, Count = g.Count() })
+        .ToList();
+
+    // Display results
+    Console.ForegroundColor = ConsoleColor.Green;
+    Console.WriteLine($"Most Expensive: {mostExpensive.Name} ({mostExpensive.Price.ToString("C", CultureInfo.CurrentCulture)})");
+    Console.WriteLine($"Cheapest:       {cheapest.Name} ({cheapest.Price.ToString("C", CultureInfo.CurrentCulture)})");
+    Console.WriteLine($"Average Price:  {averagePrice.ToString("C", CultureInfo.CurrentCulture)}");
+    Console.ResetColor();
+
+    Console.WriteLine();
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine("Product Count per Category:");
+    Console.ResetColor();
+
+    foreach (var c in categoryCounts)
+    {
+        Console.WriteLine($"- {c.Category}: {c.Count}");
+    }
+
+    Console.WriteLine();
+}
+
+    public void SaveProducts()
+{
+    try
+    {
+        string json = JsonSerializer.Serialize(products, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        File.WriteAllText("products.json", json);
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Products saved successfully to products.json");
+        Console.ResetColor();
+        Console.WriteLine();
+    }
+    catch (Exception ex)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("Error saving products: " + ex.Message);
+        Console.ResetColor();
+    }
+}
+
+    public void LoadProducts()
+{
+    try
+    {
+        if (!File.Exists("products.json"))
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("No saved file found.");
+            Console.ResetColor();
+            return;
+        }
+
+        string json = File.ReadAllText("products.json");
+
+        var loadedProducts = JsonSerializer.Deserialize<List<Product>>(json);
+
+        if (loadedProducts != null)
+        {
+            products = loadedProducts;
+
+            // IMPORTANT: Fix ID counter so new products get correct IDs
+            if (products.Any())
+            {
+                int maxId = products.Max(p => p.Id);
+                typeof(Product)
+                    .GetField("nextId", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
+                    ?.SetValue(null, maxId + 1);
+            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Products loaded successfully!");
+            Console.ResetColor();
+            Console.WriteLine();
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("Error loading products: " + ex.Message);
+        Console.ResetColor();
+    }
+}
+
     public decimal CalculateTotal()
     {
         return products.Sum(p => p.Price);
@@ -168,7 +414,12 @@ class Program
             Console.WriteLine("1. Add Product");
             Console.WriteLine("2. Show Products");
             Console.WriteLine("3. Search Product");
-            Console.WriteLine("4. Exit");
+            Console.WriteLine("4. Edit Product");
+            Console.WriteLine("5. Delete Product");
+            Console.WriteLine("6. Show Statistics");
+            Console.WriteLine("7. Save Products");
+            Console.WriteLine("8. Load Products");
+            Console.WriteLine("9. Exit");
             Console.Write("Your choice: ");
 
             string choice = (Console.ReadLine() ?? "").Trim();
@@ -190,12 +441,32 @@ class Program
                     break;
 
                 case "4":
+                    manager.EditProduct();
+                    break;
+
+                case "5":
+                    manager.DeleteProduct();
+                    break;
+                
+                case "6":
+                   manager.ShowStatistics();
+                    break;
+
+                case "7":
+                    manager.SaveProducts();
+                    break;
+
+                case "8":
+                    manager.LoadProducts();
+                    break;
+
+                case "9":
                     running = false;
                     break;
 
                 default:
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("Invalid choice. Please try again. Please enter a number between 1 and 4.");
+                    Console.WriteLine("Invalid choice. Please try again. Please enter a number between 1 and 9.");
                     Console.ResetColor();
                     break;
             }
