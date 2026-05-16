@@ -307,6 +307,61 @@ public class ProductManager
         products = products.OrderByDescending(p => p.Id).ToList();
     }
 
+    public void FilterByPriceRange()
+{
+    Console.WriteLine("\n=== FILTER BY PRICE RANGE ===");
+
+    Console.Write("Enter minimum price: ");
+    string minInput = (Console.ReadLine() ?? "").Trim();
+
+    Console.Write("Enter maximum price: ");
+    string maxInput = (Console.ReadLine() ?? "").Trim();
+
+    if (!decimal.TryParse(minInput, out decimal minPrice) ||
+        !decimal.TryParse(maxInput, out decimal maxPrice))
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("Invalid price format.");
+        Console.ResetColor();
+        return;
+    }
+
+    if (minPrice > maxPrice)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("Minimum price cannot be greater than maximum price.");
+        Console.ResetColor();
+        return;
+    }
+
+    // LINQ filtering
+    var filtered = products
+        .Where(p => p.Price >= minPrice && p.Price <= maxPrice)
+        .ToList();
+
+    if (!filtered.Any())
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("No products found in this price range.");
+        Console.ResetColor();
+        return;
+    }
+
+    Console.ForegroundColor = ConsoleColor.Cyan;
+    Console.WriteLine($"\nProducts between {minPrice:C} and {maxPrice:C}:");
+    Console.ResetColor();
+
+    foreach (var p in filtered)
+    {
+        Console.WriteLine(
+            $"{p.Id,-4} | {p.Category,-12} | {p.Name,-25} | {p.Price.ToString("C", CultureInfo.CurrentCulture),12}"
+        );
+    }
+
+    Console.WriteLine();
+}
+
+
     public void ShowStatistics()
 {
     if (!products.Any())
@@ -519,6 +574,7 @@ class Program
             Console.WriteLine("8. Load Products");
             Console.WriteLine("9. Exit");
             Console.WriteLine("10. Sort Products");
+            Console.WriteLine("11. Filter by Price Range");
             Console.Write("Your choice: ");
 
             string choice = (Console.ReadLine() ?? "").Trim();
@@ -565,6 +621,10 @@ class Program
 
                 case "10":
                     manager.SortMenu(); 
+                    break;
+
+                case "11":
+                    manager.FilterByPriceRange();
                     break;
 
                 default:
