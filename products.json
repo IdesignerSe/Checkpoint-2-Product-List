@@ -1,0 +1,14 @@
+[
+  {
+    "Id": 1,
+    "Category": "Electronics",
+    "Name": "Keyboard",
+    "Price": 599
+  },
+  {
+    "Id": 2,
+    "Category": "False Category",
+    "Name": "False Name",
+    "Price": 3
+  }
+]

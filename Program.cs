@@ -115,8 +115,7 @@ public class ProductManager
         {
             Console.ForegroundColor = ConsoleColor.Yellow; // highlight
             Console.WriteLine(
-                $"- {p.Category,-12} | {p.Name,-25} | {p.Price.ToString("C", CultureInfo.CurrentCulture),12}"
-            );
+            $"{p.Id,-4} | {p.Category,-12} | {p.Name,-25} | {p.Price.ToString("C", CultureInfo.CurrentCulture),12}"            );
             Console.ResetColor();
         }
 
@@ -140,8 +139,7 @@ public class ProductManager
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(
-                $"- {p.Category,-12} | {p.Name,-25} | {p.Price.ToString("C", CultureInfo.CurrentCulture),12}"
-            );
+            $"{p.Id,-4} | {p.Category,-12} | {p.Name,-25} | {p.Price.ToString("C", CultureInfo.CurrentCulture),12}"            );
             Console.ResetColor();
         }
 
@@ -247,7 +245,7 @@ public class ProductManager
 
     // Confirm deletion
     Console.ForegroundColor = ConsoleColor.Red;
-    Console.WriteLine($"Are you sure you want to delete '{product.Name}'? (y/n)");
+    Console.WriteLine($"Are you sure you want to delete ID {product.Id}: '{product.Name}'? (y/n)");
     Console.ResetColor();
 
     string confirm = (Console.ReadLine() ?? "").Trim().ToLower();
